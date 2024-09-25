@@ -2,6 +2,8 @@
 #include "kernel/stat.h"
 #include "kernel/fcntl.h"
 #include "user/user.h"
+#include <stdbool.h>
+#include <stddef.h>
 
 //
 // wrapper so that it's OK if main() does not call exit().
@@ -74,16 +76,25 @@ int
 fgets(int fd, char *buf, int max)
 {
   int i, cc;
-  char c;
+  char c; int first_instance = 0;
 
-  for(i=0; i+1 < max; ){
+  for (i = 0; i + 1 < max; ) {
     cc = read(fd, &c, 1);
-    if(cc < 1)
+    if (cc < 1)
       break;
-    buf[i++] = c;
-    if(c == '\n' || c == '\r')
-      break;
+		if ((c != ' '  && c != '\t') || first_instance == 1) {
+			 first_instance = 1;
+		   buf[i++] = c;	
+		}
+	  if (c == '\n' || c == '\r') {
+	  	break;
+	  }
+	  else if (c == '\t') { // we want to remove tabs
+	  	i--;
+	  	break;
+	  }
   }
+
   buf[i] = '\0';
   return i;
 }
@@ -108,8 +119,8 @@ getline(char **lineptr, uint *n, int fd)
     }
 
     total_read += read_sz;
-    if (buf[total_read - 1] == '\n') {
-      break;
+    if (buf[total_read - 1] == '\n' || buf[total_read - 1] == '\t') {
+      return total_read;
     }
 
     uint new_n = *n * 2;
@@ -125,7 +136,6 @@ getline(char **lineptr, uint *n, int fd)
 
   return total_read;
 }
-
 
 int
 stat(const char *n, struct stat *st)
@@ -191,3 +201,4 @@ memcpy(void *dst, const void *src, uint n)
 {
   return memmove(dst, src, n);
 }
+

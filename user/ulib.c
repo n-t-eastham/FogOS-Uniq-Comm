@@ -89,10 +89,6 @@ fgets(int fd, char *buf, int max)
 	  if (c == '\n' || c == '\r') {
 	  	break;
 	  }
-	  else if (c == '\t') { // we want to remove tabs
-	  	i--;
-	  	break;
-	  }
   }
 
   buf[i] = '\0';

@@ -49,10 +49,10 @@ writewords(char *line, int fd){
   char *character = &line[0];
   while (*character != '\0') { // while we aren't at the end
     if (*character == ' ' || *character == '\t') { // if we reach the end of a word
-      fprintf(fd, "\n");
+      write(fd, "\n", 1);
     }
     else {
-      fprintf(fd, "%c", *character);
+      write(fd, character, 1);
     }
     character++;
   }
@@ -77,10 +77,11 @@ void print_uniq(int count, char *lines[], bool cflag) {
     // skip null terms and line ends
     if ((strcmp(lines[curr], "\0") == 0) || (strcmp(lines[curr], "\n") == 0)
             || (strcmp(lines[curr], "\t") == 0)) {
+       curr++;
        continue;
     }
 
-    if(strcmp(lines[curr], lines[curr + 1]) == 0){
+    if((curr + 1 < count) && strcmp(lines[curr], lines[curr + 1]) == 0) {
       instances++;
     }
     // if we have hit the last uniq instance, print it out
@@ -126,7 +127,6 @@ void lines(int fd, bool cflag) {
   
   bubble_sort(lines, count); // sort all the lines
   print_uniq(count, lines, cflag); // print uniq instances
-  // free(lines);
   for (int i = 0; i < count; i++) {
   	free(lines[i]);
   }
@@ -172,7 +172,7 @@ void words(int fd, bool cflag){
     return;
   }
 
-	uint wordcount = 0; // num words
+	int wordcount = 0; // num words
   char *words[1024];
   uint newsize = 10;
 
@@ -188,10 +188,9 @@ void words(int fd, bool cflag){
   close(read);
   bubble_sort(words, wordcount); // sort all the words
   print_uniq(wordcount, words, cflag); // print unique words
-  for (int i = 0; i < wordcount; i++) {
-  	free(words[i]);
-  }
-  // free(words);
+  // for (int i = 0; i < wordcount; i++) {
+  //  	free(words[i]);
+  // }
 }
 
 /*

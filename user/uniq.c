@@ -109,27 +109,49 @@ void print_uniq(int count, char *lines[], bool cflag) {
 */
 void lines(int fd, bool cflag) {
   uint sz = 20; // getline will resize if necessary
+  int buf = 0;
   int count = 0; // num of lines
-  char *lines[1024];
+  char **lines = 0;
 
-  while (true) {
+  while (1) {
+    if (count >= buf) {
+      uint new_buf;
+      if (buf == 0) {
+    	new_buf = 8;
+      } else {
+    	  new_buf = buf * 2;
+      }
+
+      char **new_lines = malloc(new_buf * sizeof(char *));
+      if (new_lines == 0) {
+      	printf("malloc failed");
+      	exit(1);
+      }
+      if (lines) {
+      	for (int i = 0; i < count; i++) {
+      		new_lines[i] = lines[i];
+      	}
+      	free(lines);
+      }
+      lines = new_lines;
+      buf = new_buf;
+    }
+
     char *line = malloc(sz);
     if (getline(&line, &sz, fd) <= 0) {
+      free(line);
       break;
     }
-    char *temp = malloc(sz);
-    memcpy(temp, line, sz);
-    free(line); // free old memory
-    lines[count] = temp;
-    line = temp;
+
+    lines[count] = line;
     count++;
-  } 
-  
-  bubble_sort(lines, count); // sort all the lines
-  print_uniq(count, lines, cflag); // print uniq instances
-  for (int i = 0; i < count; i++) {
-  	free(lines[i]);
   }
+    bubble_sort(lines, count);
+    print_uniq(count, lines, cflag);
+    
+    for (int i = 0; i < count; i++) {
+      free(lines[i]);
+    }
 }
 
 /*

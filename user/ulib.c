@@ -95,6 +95,11 @@ fgets(int fd, char *buf, int max)
   return i;
 }
 
+
+/*
+* Function written by Shyon Ghahghahi and Amin Joseph utilized in
+* their sort command.
+*/
 int
 getline(char **buffer, uint *buffer_size, int file_descriptor)
 {

@@ -77,7 +77,7 @@ void print_uniq(int count, char *lines[], bool cflag) {
     // skip null terms and line ends
     if ((strcmp(lines[curr], "\0") == 0) || (strcmp(lines[curr], "\n") == 0)
             || (strcmp(lines[curr], "\t") == 0)) {
-       curr++;
+       //curr++;
        continue;
     }
 
@@ -107,7 +107,8 @@ void print_uniq(int count, char *lines[], bool cflag) {
 * @param fd file descriptor of file to read
 * @param cflag boolean for the -c flag
 */
-void lines(int fd, bool cflag) {
+void 
+lines(int fd, bool cflag) {
   uint sz = 20; // getline will resize if necessary
   int buf = 0;
   int count = 0; // num of lines
@@ -117,19 +118,19 @@ void lines(int fd, bool cflag) {
     if (count >= buf) {
       uint new_buf;
       if (buf == 0) {
-    	new_buf = 8;
+        new_buf = 8; // small buf to see reallocation
       } else {
-    	  new_buf = buf * 2;
+        new_buf = buf * 2;
       }
 
       char **new_lines = malloc(new_buf * sizeof(char *));
       if (new_lines == 0) {
-      	printf("malloc failed");
+        printf("malloc failed");
       	exit(1);
       }
       if (lines) {
       	for (int i = 0; i < count; i++) {
-      		new_lines[i] = lines[i];
+      	  new_lines[i] = lines[i];
       	}
       	free(lines);
       }
@@ -142,7 +143,7 @@ void lines(int fd, bool cflag) {
       free(line);
       break;
     }
-
+    
     lines[count] = line;
     count++;
   }
@@ -161,59 +162,90 @@ void lines(int fd, bool cflag) {
 * @param fd file descriptor of file to read
 * @param cflag boolean for the -c flag
 */
-void words(int fd, bool cflag){
-  uint sz = 20; // getline will resize if necessary
-  int count = 0; // num of lines
-  // file we are writing the words to
+void 
+words(int fd, bool cflag) {
+  uint sz = 20;  // getline will resize if necessary
+  int count = 0;
+  int buf = 10;  // buffer words array
+  char **words = malloc(buf * sizeof(char *));  //array of words
+
+  if (words == NULL) {
+    printf("malloc failed\n");
+    return;
+  }
+
   int write = open("/temp.txt", O_CREATE | O_WRONLY);
   if (write < 0) {
-    printf("error opening file: temp.txt\n");
+    printf("Error opening file: temp.txt\n");
+    free(words);
     return;
   }
 
-  while (true) {
+  while (1) {
     char *line = malloc(sz);
-    if (getline(&line, &sz, fd) <= 0) {
+    if (line == NULL) {
+      printf("malloc failed\n");
       break;
     }
-    char *temp = malloc(sz);
-    memcpy(temp, line, sz);
-    free(line); // free old memory
+    
+    int result = getline(&line, &sz, fd);
+    if (result <= 0) {
+      free(line);
+      break;
+    }
 
-    writewords(temp, write);
-    line = temp;
-    count++;
+    writewords(line, write);
+    free(line);
   }
   close(write);
-  // have to close & reopen file because xv6 hates us
 
-  // file to now read the words from
+  // reading the words back from temp.txt
   int read = open("/temp.txt", O_RDONLY);
   if (read < 0) {
-    printf("error opening file: temp.txt\n");
+    printf("Error opening file: temp.txt\n");
+    free(words);
     return;
   }
 
-	int wordcount = 0; // num words
-  char *words[1024];
   uint newsize = 10;
-
-  while (true) {
+  while (1) {
     char *word = malloc(newsize);
-    if(getline(&word, &newsize, read) <= 0) {
+    if (word == NULL) {
+      printf("mem failed\n");
       break;
     }
-    words[wordcount] = word;
-    wordcount++;
+
+    int result = getline(&word, &newsize, read);
+    if (result <= 0) {
+      free(word);
+      break;
+    }
+
+    if (count >= buf) {
+      int new_buf = buf * 2;
+      char **new_words = malloc(new_buf * sizeof(char *));
+      if (new_words == NULL) {
+        break;
+      }
+
+      for (int i = 0; i < count; i++) {
+        new_words[i] = words[i];
+      }
+      
+      free(words);
+      words = new_words;
+      buf = new_buf;
+    }
+    words[count] = word;
+    count++;
   }
 
   close(read);
-  bubble_sort(words, wordcount); // sort all the words
-  print_uniq(wordcount, words, cflag); // print unique words
-  // for (int i = 0; i < wordcount; i++) {
-  //  	free(words[i]);
-  // }
+
+  bubble_sort(words, count);
+  print_uniq(count, words, cflag);
 }
+
 
 /*
 * creates a char * of all the lines from a given file and

@@ -99,7 +99,6 @@ void print_uniq(int count, char *lines[], bool cflag) {
   }
 }
 
-
 /*
 * creates a char * of all the lines from a given file and
 * prints out all the unique lines
@@ -108,51 +107,51 @@ void print_uniq(int count, char *lines[], bool cflag) {
 * @param cflag boolean for the -c flag
 */
 void 
-lines(int fd, bool cflag) {
+lines(int fd, bool cflag) 
+{
   uint sz = 20; // getline will resize if necessary
   int buf = 0;
   int count = 0; // num of lines
   char **lines = 0;
-
+  
   while (1) {
     if (count >= buf) {
-      uint new_buf;
-      if (buf == 0) {
-        new_buf = 8; // small buf to see reallocation
-      } else {
-        new_buf = buf * 2;
-      }
-
-      char **new_lines = malloc(new_buf * sizeof(char *));
-      if (new_lines == 0) {
-        printf("malloc failed");
-      	exit(1);
-      }
-      if (lines) {
-      	for (int i = 0; i < count; i++) {
-      	  new_lines[i] = lines[i];
-      	}
-      	free(lines);
-      }
-      lines = new_lines;
-      buf = new_buf;
+    uint new_buf;
+    if (buf == 0) {
+       new_buf = 8; // small buf to see reallocation
+    } else {
+      new_buf = buf * 2;
     }
 
+    char **new_lines = malloc(new_buf * sizeof(char *));
+    if (new_lines == 0) {
+      printf("malloc failed");
+      exit(1);
+    }
+    if (lines) {
+      for (int i = 0; i < count; i++) {
+        new_lines[i] = lines[i];
+      }
+      free(lines);
+    }
+    lines = new_lines;
+    buf = new_buf;
+    }
+  
     char *line = malloc(sz);
     if (getline(&line, &sz, fd) <= 0) {
       free(line);
       break;
     }
-    
+      
     lines[count] = line;
     count++;
   }
-    bubble_sort(lines, count);
-    print_uniq(count, lines, cflag);
-    
-    for (int i = 0; i < count; i++) {
-      free(lines[i]);
-    }
+  print_uniq(count, lines, cflag);
+      
+  for (int i = 0; i < count; i++) {
+    free(lines[i]);
+  }
 }
 
 /*
@@ -255,7 +254,8 @@ words(int fd, bool cflag) {
 * @param fd file descriptor of file to read
 */
 void
-uniq(char *argv[], int fd) {
+uniq(char *argv[], int fd) 
+{
   int j = 0; 
 
   //FINDING PROPER FLAGS
@@ -280,20 +280,15 @@ uniq(char *argv[], int fd) {
   lines(fd, false);
 }
 
-int main(int argc, char *argv[]){
 
-	if (argc < 2) {
-		printf("usage: uniq filename [-w] [-c] [-wc]\n");
-		return -1;
-	}
-
-  int fd = open(argv[1], O_RDONLY);
-  if (fd < 1) {
-  	printf("err opening file\n");
-  	return -1;
+int main(int argc, char *argv[])
+{
+  if (argc < 1) {
+    printf("usage: uniq filename [-w] [-c] [-wc]\n");
+	return -1;
   }
-  uniq(argv, fd);
-  return 0;
 
+  uniq(argv, 0);
+  return 0;
 }
 

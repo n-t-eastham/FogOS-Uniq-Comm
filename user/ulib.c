@@ -98,6 +98,7 @@ fgets(int fd, char *buf, int max)
 int
 getline(char **lineptr, uint *n, int fd)
 {
+
   if (*lineptr == 0 && *n == 0) {
     *n = 128;
     *lineptr = malloc(*n);
@@ -108,6 +109,8 @@ getline(char **lineptr, uint *n, int fd)
   
   while (1) {
     int read_sz = fgets(fd, buf + total_read, *n - total_read);
+
+    
     if (read_sz == 0) {
       return total_read;
     } else if (read_sz == -1) {
@@ -130,7 +133,6 @@ getline(char **lineptr, uint *n, int fd)
     *n = new_n;
     *lineptr = buf;
   }
-
   return total_read;
 }
 

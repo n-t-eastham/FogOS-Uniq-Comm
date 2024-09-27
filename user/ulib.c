@@ -95,45 +95,45 @@ fgets(int fd, char *buf, int max)
   return i;
 }
 
-
-/*
-* Function written by Shyon Ghahghahi and Amin Joseph utilized in
-* their sort command.
-*/
 int
-getline(char **buffer, uint *buffer_size, int file_descriptor)
+getline(char **lineptr, uint *n, int fd)
 {
-  int bytes_read = 0;
-  int total_bytes_read = 0;
-  char last_char;
-
-  if (*buffer == NULL || *buffer_size == 0) {
-    *buffer_size = 16;
-    *buffer = (char *) malloc(*buffer_size);
-    if (*buffer == NULL) return -1;
+  if (*lineptr == 0 && *n == 0) {
+    *n = 128;
+    *lineptr = malloc(*n);
   }
 
-  bytes_read = fgets(file_descriptor, *buffer, *buffer_size);
-  while (bytes_read > 0) {
-    total_bytes_read += bytes_read;
-    last_char = *(*(buffer) + *buffer_size - 2); // Last readable char -> last char is null byte
-    if (last_char == '\n' || last_char == '\0') return total_bytes_read;
+  char *buf = *lineptr;
+  uint total_read = 0;
+  
+  while (1) {
+    int read_sz = fgets(fd, buf + total_read, *n - total_read);
+    if (read_sz == 0) {
+      return total_read;
+    } else if (read_sz == -1) {
+      return -1;
+    }
 
-    /* Double size of buffer */
-    *buffer_size *= 2;
-    char *resized_buffer = (char *) malloc(*buffer_size);
-    if (resized_buffer == NULL) return -1;
+    total_read += read_sz;
+    
+    if (buf[total_read - 1] == '\n' || buf[total_read - 1] == '\t') {
+      return total_read;
+    }
 
-    memcpy(resized_buffer, *buffer, total_bytes_read);
-    free(*buffer);
+    uint new_n = *n * 2;
+    char *new_buf = malloc(new_n);
+    memcpy(new_buf, buf, *n);
+    free(buf);
 
-    /* Start writing to end of current buffer. Only write to remaining number of bytes in buffer -> prevents buffer overflow */
-    bytes_read = fgets(file_descriptor, resized_buffer + total_bytes_read, *buffer_size - total_bytes_read);
-    *buffer = resized_buffer;
+    buf = new_buf;
+
+    *n = new_n;
+    *lineptr = buf;
   }
 
-  return bytes_read; // Will always be 0 here -> we only get here if while loop condition fails
+  return total_read;
 }
+
 
 int
 stat(const char *n, struct stat *st)

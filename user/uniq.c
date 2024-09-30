@@ -5,37 +5,37 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/*
-* helper function for sort that swaps two
-* values from an array
-*
-* @param array to swap in
-* @param i one index to swap
-* @param j other index to swap
-*/
-void
-swap(char * list[], int i, int j) {
-  char * temp = list[i];
-  list[i] = list[j];
-  list[j] = temp;
-}
-
-/*
-* bubble sorts an array of char *
-*
-* @param array to sort
-* @param length of array
-*/
-void
-bubble_sort(char *list[], int length) {
-  for (int i = 0; i < length; i++) {
-    for (int j = i + 1; j < length; j++) {
-      if (strcmp(list[i], list[j]) > 0) {
-        swap(list, i, j);
-      }
-    }
-  }
-}
+// /*
+// * helper function for sort that swaps two
+// * values from an array
+// *
+// * @param array to swap in
+// * @param i one index to swap
+// * @param j other index to swap
+// */
+// void
+// swap(char * list[], int i, int j) {
+//   char * temp = list[i];
+//   list[i] = list[j];
+//   list[j] = temp;
+// }
+// 
+// /*
+// * bubble sorts an array of char *
+// *
+// * @param array to sort
+// * @param length of array
+// */
+// void
+// bubble_sort(char *list[], int length) {
+//   for (int i = 0; i < length; i++) {
+//     for (int j = i + 1; j < length; j++) {
+//       if (strcmp(list[i], list[j]) > 0) {
+//         swap(list, i, j);
+//       }
+//     }
+//   }
+// }
 
 /*
 * writes a line word by word to a given file
@@ -44,7 +44,8 @@ bubble_sort(char *list[], int length) {
 * @param fd file descriptor to write to
 */
 void *
-writewords(char *line, int fd){
+writewords(char *line, int fd)
+{
   // first char we check is the start of the line
   char *character = &line[0];
   while (*character != '\0') { // while we aren't at the end
@@ -69,7 +70,9 @@ writewords(char *line, int fd){
 * @param lines array of lines or words
 * @param cflag boolean for the -c flag
 */
-void print_uniq(int count, char *lines[], bool cflag) {
+void 
+print_uniq(int count, char *lines[], bool cflag) 
+{
   int curr = 0; // keeps track of which line we're at
   int instances = 1; // keeps track of how many instances
 
@@ -154,6 +157,7 @@ lines(int fd, bool cflag)
   }
 }
 
+
 /*
 * creates a char * of all the words from a given file and
 * prints out all the unique words
@@ -162,87 +166,65 @@ lines(int fd, bool cflag)
 * @param cflag boolean for the -c flag
 */
 void 
-words(int fd, bool cflag) {
-  uint sz = 20;  // getline will resize if necessary
-  int count = 0;
-  int buf = 10;  // buffer words array
-  char **words = malloc(buf * sizeof(char *));  //array of words
-
-  if (words == NULL) {
-    printf("malloc failed\n");
-    return;
-  }
-
-  int write = open("/temp.txt", O_CREATE | O_WRONLY);
-  if (write < 0) {
-    printf("Error opening file: temp.txt\n");
-    free(words);
-    return;
-  }
-
-  while (1) {
-    char *line = malloc(sz);
-    if (line == NULL) {
-      printf("malloc failed\n");
-      break;
-    }
-    
-    int result = getline(&line, &sz, fd);
-    if (result <= 0) {
-      free(line);
-      break;
-    }
-
-    writewords(line, write);
-    free(line);
-  }
-  close(write);
-
-  // reading the words back from temp.txt
-  int read = open("/temp.txt", O_RDONLY);
-  if (read < 0) {
-    printf("Error opening file: temp.txt\n");
-    free(words);
-    return;
-  }
-
-  uint newsize = 10;
-  while (1) {
-    char *word = malloc(newsize);
-    if (word == NULL) {
-      printf("mem failed\n");
-      break;
-    }
-
-    int result = getline(&word, &newsize, read);
-    if (result <= 0) {
-      free(word);
-      break;
-    }
-
-    if (count >= buf) {
-      int new_buf = buf * 2;
-      char **new_words = malloc(new_buf * sizeof(char *));
-      if (new_words == NULL) {
-        break;
-      }
-
-      for (int i = 0; i < count; i++) {
-        new_words[i] = words[i];
-      }
-      
-      free(words);
-      words = new_words;
-      buf = new_buf;
-    }
-    words[count] = word;
-    count++;
-  }
-
-  close(read);
-
-  bubble_sort(words, count);
-  print_uniq(count, words, cflag);
+words(int fd, bool cflag) 
+{
+//   uint sz = 20;  // getline will resize if necessary
+//   int count = 0;
+//   int buf = 10;  // buffer words array
+//   char **words = malloc(buf * sizeof(char *));  //array of words
+// 
+//   if (words == NULL) {
+//     printf("malloc failed\n");
+//     return;
+//   }
+//   
+//   char *prev_word = NULL;
+// 
+//   while (1) {
+//     char *word = malloc(sz);
+//     if (word == NULL) {
+//       printf("malloc failed\n");
+//       break;
+//     }
+//     
+//     int result = getline(&word, &sz, fd);
+//     if (result <= 0) {
+//       free(word);
+//       break;
+//     }
+// 
+//     if (prev_word != NULL && strcmp(prev_word, word) == 0) {
+//       free(word);
+//       continue;
+//     }
+// 
+//     if (count >= buf) {
+//       int new_buf = buf * 2;
+//       char **new_words = malloc(new_buf * sizeof(char *));
+//       if (new_words == NULL) {
+//         printf("malloc failed\n");
+//         break;
+//       }
+// 
+//       for (int i = 0; i < count; i++) {
+//       	new_words[i] = words[i];
+//       }
+// 
+//       free(words);
+//       words = new_words;
+//       buf = new_buf;
+//     }
+//     words[count] = word;
+//     count++;
+//     prev_word = word;
+//   }
+// 
+//   print_uniq(count, words, cflag);
+// 
+//   for (int i = 0; i < count; i++) {
+//   	free(words[i]);
+//   }
+//   free(words);
 }
 
 

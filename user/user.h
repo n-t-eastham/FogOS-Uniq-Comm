@@ -44,3 +44,4 @@ int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
 void uniq(char *argv[], int fd);
 int sort(int fd, int num_flages, char*[]);
+void split(int fd, uint sz);

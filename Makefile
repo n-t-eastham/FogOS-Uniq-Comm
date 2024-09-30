@@ -128,6 +128,7 @@ UPROGS=\
 	$U/_rm\
 	$U/_sh\
 	$U/_sort\
+	$U/_split\
 	$U/_stressfs\
 	$U/_uniq\
 	$U/_usertests\

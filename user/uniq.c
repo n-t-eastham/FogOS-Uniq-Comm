@@ -15,18 +15,23 @@
 void *
 writewords(char *line, int fd)
 {
+  bool in_word = false;
   // first char we check is the start of the line
   char *character = &line[0];
   while (*character != '\0') { // while we aren't at the end
     if (*character == ' ' || *character == '\t') { // if we reach the end of a word
-      write(fd, "\n", 1);
-    }
-    else {
+      if (in_word) {
+        write(fd, "\n", 1);
+      } 
+    } else {
       write(fd, character, 1);
+      in_word = true;
     }
     character++;
   }
-
+  if (in_word) {
+  	write(fd, "\n", 1);
+  }
   return 0;
 }
 
@@ -56,11 +61,12 @@ free_lines(int num_lines, char *lines[])
 * @param lines array of lines or words
 * @param cflag boolean for the -c flag
 */
-void 
+int 
 print_uniq(int count, char *lines[], bool cflag) 
 {
   int curr = 0; // keeps track of which line we're at
   int instances = 1; // keeps track of how many instances
+  int unique_count = 0;
 
   while(curr < count) { // while we still have stuff to read
     // skip null terms and line ends
@@ -74,6 +80,7 @@ print_uniq(int count, char *lines[], bool cflag)
     }
     // if we have hit the last uniq instance, print it out
     else {
+      unique_count++;
       if (cflag) { // with count
         printf("%d %s", instances, lines[curr]);
       }
@@ -85,6 +92,7 @@ print_uniq(int count, char *lines[], bool cflag)
 
     curr++;
   }
+  return unique_count;
 }
 
 
@@ -96,7 +104,7 @@ print_uniq(int count, char *lines[], bool cflag)
 * @param cflag boolean for the -c flag
 */
 void 
-lines(int fd, bool cflag) 
+lines(int fd, bool cflag, bool tflag) 
 {
   uint sz = 20; // getline will resize if necessary
   int buf = 0;
@@ -136,7 +144,11 @@ lines(int fd, bool cflag)
     lines[count] = line;
     count++;
   }
-  print_uniq(count, lines, cflag);
+  int unique_count = print_uniq(count, lines, cflag);
+
+  if (tflag) {
+  	printf("Total unique lines/words: %d\n", unique_count);
+  }
 
   free_lines(count, lines);
 }
@@ -152,18 +164,21 @@ lines(int fd, bool cflag)
 void
 uniq(char *argv[], int fd) 
 {
-  int j = 0; 
+  int j = 0;
+  bool cflag = false;
+  bool tflag = false; 
 
   //FINDING PROPER FLAGS
   while (argv[j] != NULL) {
     if (!strcmp(argv[j], "-c")) {
-      lines(fd, true);
-      return;
+      cflag = true;
+    } else if (!strcmp(argv[j], "-t")) {
+    	tflag = true;
     }
     j++;
   }
   
-  lines(fd, false);
+  lines(fd, cflag, tflag);
 }
 
 

@@ -112,7 +112,12 @@ getline(char **lineptr, uint *n, int fd)
 
     
     if (read_sz == 0) {
+      if (total_read == 0) {
+      	return -1;
+      }
+      buf[total_read] = '\0';
       return total_read;
+
     } else if (read_sz == -1) {
       return -1;
     }
@@ -120,6 +125,7 @@ getline(char **lineptr, uint *n, int fd)
     total_read += read_sz;
     
     if (buf[total_read - 1] == '\n' || buf[total_read - 1] == '\t') {
+      buf[total_read] = '\0';
       return total_read;
     }
 
@@ -129,7 +135,6 @@ getline(char **lineptr, uint *n, int fd)
     free(buf);
 
     buf = new_buf;
-
     *n = new_n;
     *lineptr = buf;
   }

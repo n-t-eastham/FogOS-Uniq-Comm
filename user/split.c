@@ -79,10 +79,10 @@ split(int fd, uint sz)
     }
   }
   
-  if (word_index > 0) {
-    word[word_index] = '\0';
-    printf("%s\n", word);
-  }
+  // if (word_index > 0) {
+  //   word[word_index] = '\0';
+  //   printf("%s\n", word);
+  // }
 
   free(word);
 }

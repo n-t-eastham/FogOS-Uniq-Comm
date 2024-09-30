@@ -227,7 +227,7 @@ main(int argc, char *argv[])
     }
    arg_start = 2;
   }
-  
+
   uniq(&argv[arg_start], fd);
 
   if (fd != 0) {

@@ -32,8 +32,7 @@ writewords(char *line, int fd)
 
 
 /*
-* prints out the uniq instances from a provided sorted
-* char* array
+* frees memory allocated for the lines array
 *
 * @param num_lines max num of lines
 * @param lines array of lines
@@ -138,10 +137,8 @@ lines(int fd, bool cflag)
     count++;
   }
   print_uniq(count, lines, cflag);
-      
-  for (int i = 0; i < count; i++) {
-    free(lines[i]);
-  }
+
+  free_lines(count, lines);
 }
 
 

@@ -5,37 +5,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-// /*
-// * helper function for sort that swaps two
-// * values from an array
-// *
-// * @param array to swap in
-// * @param i one index to swap
-// * @param j other index to swap
-// */
-// void
-// swap(char * list[], int i, int j) {
-//   char * temp = list[i];
-//   list[i] = list[j];
-//   list[j] = temp;
-// }
-// 
-// /*
-// * bubble sorts an array of char *
-// *
-// * @param array to sort
-// * @param length of array
-// */
-// void
-// bubble_sort(char *list[], int length) {
-//   for (int i = 0; i < length; i++) {
-//     for (int j = i + 1; j < length; j++) {
-//       if (strcmp(list[i], list[j]) > 0) {
-//         swap(list, i, j);
-//       }
-//     }
-//   }
-// }
 
 /*
 * writes a line word by word to a given file
@@ -66,6 +35,24 @@ writewords(char *line, int fd)
 * prints out the uniq instances from a provided sorted
 * char* array
 *
+* @param num_lines max num of lines
+* @param lines array of lines
+*/
+void
+free_lines(int num_lines, char *lines[])
+{
+  for (int i = 0; i < num_lines; i++) {
+    free(*(lines + i));
+  }
+  free(lines);
+  lines = NULL;
+}
+
+
+/*
+* prints out the uniq instances from a provided sorted
+* char* array
+*
 * @param count max num of lines or words
 * @param lines array of lines or words
 * @param cflag boolean for the -c flag
@@ -80,7 +67,6 @@ print_uniq(int count, char *lines[], bool cflag)
     // skip null terms and line ends
     if ((strcmp(lines[curr], "\0") == 0) || (strcmp(lines[curr], "\n") == 0)
             || (strcmp(lines[curr], "\t") == 0)) {
-       //curr++;
        continue;
     }
 
@@ -101,6 +87,7 @@ print_uniq(int count, char *lines[], bool cflag)
     curr++;
   }
 }
+
 
 /*
 * creates a char * of all the lines from a given file and
@@ -159,76 +146,6 @@ lines(int fd, bool cflag)
 
 
 /*
-* creates a char * of all the words from a given file and
-* prints out all the unique words
-*
-* @param fd file descriptor of file to read
-* @param cflag boolean for the -c flag
-*/
-void 
-words(int fd, bool cflag) 
-{
-//   uint sz = 20;  // getline will resize if necessary
-//   int count = 0;
-//   int buf = 10;  // buffer words array
-//   char **words = malloc(buf * sizeof(char *));  //array of words
-// 
-//   if (words == NULL) {
-//     printf("malloc failed\n");
-//     return;
-//   }
-//   
-//   char *prev_word = NULL;
-// 
-//   while (1) {
-//     char *word = malloc(sz);
-//     if (word == NULL) {
-//       printf("malloc failed\n");
-//       break;
-//     }
-//     
-//     int result = getline(&word, &sz, fd);
-//     if (result <= 0) {
-//       free(word);
-//       break;
-//     }
-// 
-//     if (prev_word != NULL && strcmp(prev_word, word) == 0) {
-//       free(word);
-//       continue;
-//     }
-// 
-//     if (count >= buf) {
-//       int new_buf = buf * 2;
-//       char **new_words = malloc(new_buf * sizeof(char *));
-//       if (new_words == NULL) {
-//         printf("malloc failed\n");
-//         break;
-//       }
-// 
-//       for (int i = 0; i < count; i++) {
-//       	new_words[i] = words[i];
-//       }
-// 
-//       free(words);
-//       words = new_words;
-//       buf = new_buf;
-//     }
-//     words[count] = word;
-//     count++;
-//     prev_word = word;
-//   }
-// 
-//   print_uniq(count, words, cflag);
-// 
-//   for (int i = 0; i < count; i++) {
-//   	free(words[i]);
-//   }
-//   free(words);
-}
-
-
-/*
 * creates a char * of all the lines from a given file and
 * prints out all the unique lines
 *
@@ -246,16 +163,6 @@ uniq(char *argv[], int fd)
       lines(fd, true);
       return;
     }
-
-    else if (!strcmp(argv[j], "-wc")) {
-      words(fd, true);
-      return;
-    }
-  
-    else if (!strcmp(argv[j], "-w")) {
-      words(fd, false);
-      return;
-    }
     j++;
   }
   
@@ -265,12 +172,22 @@ uniq(char *argv[], int fd)
 
 int main(int argc, char *argv[])
 {
-  if (argc < 1) {
-    printf("usage: uniq filename [-w] [-c] [-wc]\n");
-	return -1;
-  }
+  int fd = 0;
+  int arg_start = 1;
 
-  uniq(argv, 0);
+  if (argc > 1 && argv[1][0] != '-') {
+  	fd = open(argv[1], O_RDONLY);
+  	if (fd < 0) {
+    printf("cannot open file %s\n", argv[1]);
+	return -1;
+    }
+   arg_start = 2;
+  }
+  
+  uniq(&argv[arg_start], fd);
+
+  if (fd != 0) {
+  	close(fd);
+  }
   return 0;
 }
-

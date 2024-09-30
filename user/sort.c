@@ -7,18 +7,21 @@
 int
 main(int argc, char *argv[])
 {
-  if (argc < 2) {
-  	printf("usage: sort <filename> [-l | -w]\n");
+  int fd;
+  
+  if (argc == 1) {
+  	fd = 0;
+  } else if (argc >= 2) {
+      char * file_name = argv[1];
+      fd = open(file_name, O_RDONLY);
+      if (fd < 0) {
+        printf("cannot open %s\n", file_name);
+        return -1;
+      }
+  } else {
   	return -1;
   }
 
-  char *file_name = argv[1];
-
-  int fd = open(file_name, O_RDONLY);
-  if (fd < 0) {
-  	printf("cannot open %s\n", file_name);
-  	return -1;
-  }
 
   /*
   * Currently the second and third args of sort are 
@@ -26,10 +29,11 @@ main(int argc, char *argv[])
   */
   if (sort(fd, 0, NULL) != 0) {
   	printf("sort failed\n");
-  	close(fd);
+  	if (fd != 0) close(fd);
   	return 1;
   }
 
+  if (fd != 0) close(fd);
   return 0;
 }
 

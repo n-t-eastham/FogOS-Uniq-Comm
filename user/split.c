@@ -57,7 +57,7 @@ split(int fd, uint sz)
       	  if (word_index >= word_sz - 1) {
       	  	int new_sz = word_sz * 2;
       	  	char *new_word = malloc(new_sz);
-      	  	if (new_word) {
+      	  	if (new_word == NULL) {
       	  	  printf("malloc failed\n");
       	  	  free(word);
       	  	  return;

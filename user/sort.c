@@ -23,10 +23,10 @@ main(int argc, char *argv[])
   }
 
 
-  /*
-  * Currently the second and third args of sort are 
-  * meant for flags, but we are ommiting those for now.
-  */
+  /**
+   * Currently the second and third args of sort are 
+   * meant for flags, but we are ommiting those for now.
+   */
   if (sort(fd, 0, NULL) != 0) {
   	printf("sort failed\n");
   	if (fd != 0) close(fd);
@@ -38,6 +38,12 @@ main(int argc, char *argv[])
 }
 
 
+/**
+ * frees the memory allocated for an array of strings
+ * 
+ * @param num_lines number of lines in the array
+ * @param lines array of strings to be freed
+ */
 void
 free_lines(int num_lines, char *lines[])
 {
@@ -48,6 +54,13 @@ free_lines(int num_lines, char *lines[])
   lines = NULL;
 }
 
+
+/**
+ * prints an array of strings
+ * 
+ * @param num_lines number of lines in the array
+ * @param lines array of strings to be printed
+*/
 void
 print_lines(int num_lines, char *lines[])
 {
@@ -56,6 +69,13 @@ print_lines(int num_lines, char *lines[])
   }
 }
 
+
+/**
+ * sorts an array of strings using insertion sort
+ * 
+ * @param num_lines number of lines in the array
+ * @param lines array of strings to be sorted
+ */
 void
 insertion_sort_line(int num_lines, char *lines[])
 {
@@ -73,6 +93,14 @@ insertion_sort_line(int num_lines, char *lines[])
 }
 
 
+/**
+ * reads lines from a file, sorts them, and prints them
+ * 
+ * @param fd file descriptor of the file to be sorted
+ * @param num_flags number of flags (currently unused)
+ * @param flags array of flags (currently unused)
+ * @return int returns 0 on success, 1 on failure
+ */
 int 
 sort(int fd, int num_flags, char *flags[]) 
 {

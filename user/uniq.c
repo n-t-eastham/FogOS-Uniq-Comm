@@ -167,7 +167,8 @@ uniq(char *argv[], int fd)
 }
 
 
-int main(int argc, char *argv[])
+int 
+main(int argc, char *argv[])
 {
   int fd = 0;
   int arg_start = 1;

@@ -53,6 +53,30 @@ free_lines(int num_lines, char *lines[])
 }
 
 
+char 
+tolower(char c) 
+{
+	if (c >= 'A' && c <= 'Z') {
+	  return c + ('a' - 'A');
+	}
+	return c;
+}
+
+
+int
+strcmp_helper(const char *s1, const char *s2) {
+  while (*s1 && *s2) {
+    char c1 = tolower(*s1);
+    char c2 = tolower(*s2);
+    if (c1 != c2) {
+      return c1 - c2;
+    }
+    s1++;
+    s2++;
+  }
+  return tolower(*s1) - tolower(*s2);
+}
+
 /*
 * prints out the uniq instances from a provided sorted
 * char* array
@@ -62,7 +86,7 @@ free_lines(int num_lines, char *lines[])
 * @param cflag boolean for the -c flag
 */
 int 
-print_uniq(int count, char *lines[], bool cflag) 
+print_uniq(int count, char *lines[], bool cflag, bool fflag) 
 {
   int curr = 0; // keeps track of which line we're at
   int instances = 1; // keeps track of how many instances
@@ -75,20 +99,24 @@ print_uniq(int count, char *lines[], bool cflag)
        continue;
     }
 
-    if((curr + 1 < count) && strcmp(lines[curr], lines[curr + 1]) == 0) {
+    bool equal;
+    if (fflag) {
+    	equal = strcmp_helper(lines[curr], lines[curr + 1]) == 0;
+    } else {
+        equal = strcmp(lines[curr], lines[curr + 1]) == 0;
+    }
+
+    if((curr + 1 < count) && equal) {
       instances++;
-    }
-    // if we have hit the last uniq instance, print it out
-    else {
-      unique_count++;
-      if (cflag) { // with count
-        printf("%d %s", instances, lines[curr]);
-      }
-      else { // without count
-        printf("%s", lines[curr]);
-      }
+    } else {
+        unique_count++;
+        if (cflag) { // with count
+          printf("%d %s", instances, lines[curr]);
+        } else { // without count
+            printf("%s", lines[curr]);
+        }
       instances = 1;
-    }
+     }
 
     curr++;
   }
@@ -104,7 +132,7 @@ print_uniq(int count, char *lines[], bool cflag)
 * @param cflag boolean for the -c flag
 */
 void 
-lines(int fd, bool cflag, bool tflag) 
+lines(int fd, bool cflag, bool tflag, bool fflag) 
 {
   uint sz = 20; // getline will resize if necessary
   int buf = 0;
@@ -144,7 +172,7 @@ lines(int fd, bool cflag, bool tflag)
     lines[count] = line;
     count++;
   }
-  int unique_count = print_uniq(count, lines, cflag);
+  int unique_count = print_uniq(count, lines, cflag, fflag);
 
   if (tflag) {
   	printf("Total unique lines/words: %d\n", unique_count);
@@ -167,6 +195,7 @@ uniq(char *argv[], int fd)
   int j = 0;
   bool cflag = false;
   bool tflag = false; 
+  bool fflag = false;
 
   //FINDING PROPER FLAGS
   while (argv[j] != NULL) {
@@ -174,11 +203,13 @@ uniq(char *argv[], int fd)
       cflag = true;
     } else if (!strcmp(argv[j], "-t")) {
     	tflag = true;
+    } else if (!strcmp(argv[j], "-f")) {
+        fflag = true;
     }
     j++;
   }
   
-  lines(fd, cflag, tflag);
+  lines(fd, cflag, tflag, fflag);
 }
 
 

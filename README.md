@@ -7,9 +7,9 @@ what are testing this time?
 Does this break the code?
 	vaudevillian
 here we go again
-here we go again
+HERE WE GO AGAIN
 lets test some more
-test command
+TEST COMMAND
 Voilà! 
 In view, a humble vaudevillian veteran cast vicariously as both victim and villain by the vicissitudes of Fate.
 This visage, no mere veneer of vanity, is a vestige of the vox populi, now vacant, vanished. 

@@ -75,22 +75,15 @@ gets(char *buf, int max)
 int
 fgets(int fd, char *buf, int max)
 {
-  int i, cc;
-  char c; int first_instance = 0;
-
-  for (i = 0; i + 1 < max; ) {
+  int i = 0, cc;
+  char c;
+  while(i < max -1) {
     cc = read(fd, &c, 1);
-    if (cc < 1)
-      break;
-		if ((c != ' '  && c != '\t') || first_instance == 1) {
-			 first_instance = 1;
-		   buf[i++] = c;	
-		}
-	  if (c == '\n' || c == '\r') {
-	  	break;
-	  }
+    if (cc < 1) { break; }
+    buf[i++] = c;
+    if (c == '\n' || c == '\r') { break; }
   }
-
+  
   buf[i] = '\0';
   return i;
 }
@@ -98,47 +91,40 @@ fgets(int fd, char *buf, int max)
 int
 getline(char **lineptr, uint *n, int fd)
 {
-
-  if (*lineptr == 0 && *n == 0) {
-    *n = 128;
+  //allocate a buffer if *lineptr == NULL and n = 0
+  if (*lineptr == NULL && *n == 0) {
+    *n = 2;
     *lineptr = malloc(*n);
-  }
-
-  char *buf = *lineptr;
-  uint total_read = 0;
-  
-  while (1) {
-    int read_sz = fgets(fd, buf + total_read, *n - total_read);
-
-    
-    if (read_sz == 0) {
-      if (total_read == 0) {
-      	return -1;
-      }
-      buf[total_read] = '\0';
-      return total_read;
-
-    } else if (read_sz == -1) {
+    if (*lineptr == NULL) {
       return -1;
     }
-
-    total_read += read_sz;
-    
-    if (buf[total_read - 1] == '\n' || buf[total_read - 1] == '\t') {
-      buf[total_read] = '\0';
-      return total_read;
-    }
-
-    uint new_n = *n * 2;
-    char *new_buf = malloc(new_n);
-    memcpy(new_buf, buf, *n);
-    free(buf);
-
-    buf = new_buf;
-    *n = new_n;
-    *lineptr = buf;
   }
-  return total_read;
+  int total = 0;
+  
+  while (true) {
+    //with each iteration, pointer arithmetic is used to traverse the buffer
+    int bytes_read = fgets(fd, *lineptr + total, *n - total);
+    
+    if (bytes_read < 0) {
+      return -1;
+    } else if (bytes_read == 0) {
+      return total;
+    }
+    total += bytes_read;
+    if ((*lineptr)[total - 1] == '\n') { break; }
+    //double the buffer size
+    uint resize = *n << 1;
+    char *new_buf = malloc(resize);
+    if (new_buf == NULL) {
+      return -1;
+    }
+    memcpy(new_buf, *lineptr, *n);
+    free(*lineptr);
+    
+    *lineptr = new_buf;
+    *n = resize; 
+  }
+  return total;
 }
 
 

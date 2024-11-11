@@ -43,5 +43,5 @@ int atoi(const char*);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
 void uniq(char *argv[], int fd);
-int sort(int fd, int num_flages, char*[]);
+int sort(int fd);
 void split(int fd, uint sz);

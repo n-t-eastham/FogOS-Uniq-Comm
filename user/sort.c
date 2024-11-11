@@ -4,41 +4,8 @@
 #include "kernel/fcntl.h"
 #include <stddef.h>
 
-int
-main(int argc, char *argv[])
-{
-  int fd;
-  
-  if (argc == 1) {
-  	fd = 0;
-  } else if (argc >= 2) {
-      char * file_name = argv[1];
-      fd = open(file_name, O_RDONLY);
-      if (fd < 0) {
-        printf("cannot open %s\n", file_name);
-        return -1;
-      }
-  } else {
-  	return -1;
-  }
 
-
-  /**
-   * Currently the second and third args of sort are 
-   * meant for flags, but we are ommiting those for now.
-   */
-  if (sort(fd, 0, NULL) != 0) {
-  	printf("sort failed\n");
-  	if (fd != 0) close(fd);
-  	return 1;
-  }
-
-  if (fd != 0) close(fd);
-  return 0;
-}
-
-
-/**
+/*
  * frees the memory allocated for an array of strings
  * 
  * @param num_lines number of lines in the array
@@ -55,12 +22,12 @@ free_lines(int num_lines, char *lines[])
 }
 
 
-/**
+/*
  * prints an array of strings
  * 
  * @param num_lines number of lines in the array
  * @param lines array of strings to be printed
-*/
+ */
 void
 print_lines(int num_lines, char *lines[])
 {
@@ -70,7 +37,7 @@ print_lines(int num_lines, char *lines[])
 }
 
 
-/**
+/*
  * sorts an array of strings using insertion sort
  * 
  * @param num_lines number of lines in the array
@@ -93,7 +60,7 @@ insertion_sort_line(int num_lines, char *lines[])
 }
 
 
-/**
+/*
  * reads lines from a file, sorts them, and prints them
  * 
  * @param fd file descriptor of the file to be sorted
@@ -102,7 +69,7 @@ insertion_sort_line(int num_lines, char *lines[])
  * @return int returns 0 on success, 1 on failure
  */
 int 
-sort(int fd, int num_flags, char *flags[]) 
+sort(int fd) 
 {
   uint sz = 128;
   int count = 0; 
@@ -157,4 +124,33 @@ sort(int fd, int num_flags, char *flags[])
     free_lines(count, lines);
 
     return 0;
+}
+
+
+int
+main(int argc, char *argv[])
+{
+  int fd;
+  
+  if (argc == 1) {
+  	fd = 0;
+  } else if (argc >= 2) {
+      char * file_name = argv[1];
+      fd = open(file_name, O_RDONLY);
+      if (fd < 0) {
+        printf("cannot open %s\n", file_name);
+        return -1;
+      }
+  } else {
+  	return -1;
+  }
+
+  if (sort(fd) != 0) {
+  	printf("sort failed\n");
+  	if (fd != 0) close(fd);
+  	return 1;
+  }
+
+  if (fd != 0) close(fd);
+  return 0;
 }

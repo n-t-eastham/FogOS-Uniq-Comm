@@ -4,36 +4,14 @@
 #include "kernel/fcntl.h"
 #include <stddef.h>
 
-int
-main(int argc, char *argv[])
-{
-  int fd;
-  
-  if ( argc < 2) {
-    fd = 0;
-  } else {
-  	char *file_name = argv[1];
-  	fd = open(file_name, O_RDONLY);
-  	if (fd < 0) {
-  	  printf("cannot open %s\n", file_name);
-  	  return -1;
-  	}
-  }
-  
-  uint sz = 128;
-  split(fd, sz);
-
-  close(fd);
-  return 0;
-}
-
 
 /*
-* splits the content of a file into words and prints them
-* 
-* @param fd File Descriptor of the file to be split
-* @param sz buffer size to reallocate later
-*/
+ * Reads file per character, builing words until delimiter is
+ * found. Reallocates buffer if word is greater than size.
+ * 
+ * @param fd File Descriptor of the file to be split
+ * @param sz buffer size to reallocate later
+ */
 void
 split(int fd, uint sz)
 {
@@ -78,11 +56,30 @@ split(int fd, uint sz)
       }
     }
   }
-  
-  // if (word_index > 0) {
-  //   word[word_index] = '\0';
-  //   printf("%s\n", word);
-  // }
 
   free(word);
+}
+
+
+int
+main(int argc, char *argv[])
+{
+  int fd;
+  
+  if ( argc < 2) {
+    fd = 0;
+  } else {
+  	char *file_name = argv[1];
+  	fd = open(file_name, O_RDONLY);
+  	if (fd < 0) {
+  	  printf("cannot open %s\n", file_name);
+  	  return -1;
+  	}
+  }
+  
+  uint sz = 128;
+  split(fd, sz);
+
+  close(fd);
+  return 0;
 }
